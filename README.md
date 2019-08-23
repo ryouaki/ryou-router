@@ -13,7 +13,7 @@ The router plugin for expressjs about auto configure the routing function. è‡ªåŠ
 
   module.exports = class Api1 extends BaseController {
     `get /method/:id` (req, res) {
-
+      return "ok";
     }
   }
 ```
