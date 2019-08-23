@@ -1,0 +1,36 @@
+{
+  "name": "ryou-router",
+  "version": "1.0.0",
+  "description": "The router plugin for expressjs about auto configure the routing function",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ryouaki/ryou-router.git"
+  },
+  "files": [
+    "index.js",
+    "package.json",
+    "LICENSE",
+    "README.md"
+  ],
+  "keywords": [
+    "expressjs",
+    "nodejs",
+    "router",
+    "js",
+    "restful",
+    "api"
+  ],
+  "author": "ryouaki (46517115@qq.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ryouaki/ryou-router/issues"
+  },
+  "homepage": "https://github.com/ryouaki/ryou-router#readme",
+  "peerDependencies": {
+    "express": "^4.17.1"
+  }
+}
