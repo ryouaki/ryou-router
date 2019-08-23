@@ -50,7 +50,7 @@ router.__proto__.attch = function (controller) {
 }
 
 exports.router = function (opts = {}) {
-  const controllerPath = opts.path || path.resolve(__dirname, '..', 'controller');
+  const controllerPath = opts.path || path.resolve(process.cwd(), 'controller');
 
   const files = fs.readdirSync(controllerPath);
 
