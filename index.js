@@ -39,8 +39,8 @@ router.__proto__.attch = function (controller) {
           controller.before(req, res);
           const ret = controller[method](req, res);
           controller.after(req, res);
-          if (!res.headersSent && ret) {
-            res.json(ret).end();
+          if (!res.headersSent) {
+            res.json(ret || {}).end();
           }
         });
     }
