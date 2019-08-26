@@ -2,6 +2,10 @@ const express = require("express");
 const path = require('path');
 const fs = require('fs');
 
+function isPromise(obj) {
+  return !!obj && (typeof obj === 'object' || typeof obj === 'function') && typeof obj.then === 'function';
+}
+
 const router = express.Router();
 
 router.__proto__.attch = function (controller) {
@@ -34,10 +38,16 @@ router.__proto__.attch = function (controller) {
           path = items[1];
         }
         
-        subRouter[action](path, function (req, res, next) { 
+        subRouter[action](path, async function (req, res, next) { 
           controller.updateContext(req, res);
           controller.before(req, res);
-          const ret = controller[method](req, res);
+          const data = controller[method](req, res);
+          let ret = null;
+          if (isPromise(data)) {
+            ret = await data;
+          } else {
+            ret = data;
+          }
           controller.after(req, res);
           if (!res.headersSent) {
             res.json(ret || {}).end();
