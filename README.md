@@ -1,3 +1,6 @@
+
+[![npm downloads](https://img.shields.io/npm/dm/ryou-router.svg?style=flat-square)](http://npm-stat.com/charts.html?package=ryou-router)
+
 # ryou-router
 The router plugin for expressjs about auto configure the routing function. 自动配置Expressjs路由插件
 
