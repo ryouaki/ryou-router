@@ -2,7 +2,9 @@
 [![npm downloads](https://img.shields.io/npm/dm/ryou-router.svg?style=flat-square)](http://npm-stat.com/charts.html?package=ryou-router)
 
 # ryou-router
-The router plugin for expressjs about auto configure the routing function. 自动配置Expressjs路由插件
+The router plugin for expressjs about auto configure the routing function. Only need to create controller file and inherit BaseController from ryou-router to generate route information automatically.
+
+只需要创建对应的controller文件，并且继承BaseController中即可自动生成路由配置信息。
 
 ## API
 
