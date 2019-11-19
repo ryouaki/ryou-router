@@ -3,7 +3,6 @@
 
 # ryou-router
 The router plugin for expressjs about auto configure the routing function. 自动配置Expressjs路由插件
-* demo目前会导致QPS下降 1/4左右。这个是由于在demo中controller的before和after拦截器用了console引起的
 
 ## API
 
