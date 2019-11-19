@@ -8,7 +8,10 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
-      "program": "${workspaceFolder}\\example\\app.js"
+      "program": "${workspaceFolder}/example/app.js",
+      "env": {
+        "NODE_ENV": "development"
+      }
     }
   ]
 }

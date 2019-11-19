@@ -1,18 +1,19 @@
 const {BaseController} = require("../../index");
+const fs = require('fs')
 
 module.exports = class Test extends BaseController {
   before(req, res) {
-    console.log("Request come in!" + req.originalUrl)
+    // console.log("Request come in!")
   }
 
   after(req, res) {
-    console.log("Response come out!" + req.originalUrl)
+    // console.log("Response come out!")
   }
   get$test1(req, res) {
     res.status(200).json({
       code: 0,
       data: null,
-      msg: req.params.id
+      msg: req.query.id
     })
   }
 
@@ -28,7 +29,7 @@ module.exports = class Test extends BaseController {
     return {
       code: 0,
       data: null,
-      msg: this.req.params.id
+      msg: this.req.query.id
     }
   }
 
@@ -40,6 +41,14 @@ module.exports = class Test extends BaseController {
     this.failed(400, this.req.params.msg, "test");
   }
 
+  'get /test6' () {
+    return 'hello world';
+  }
+
+  'get /test7' () {
+    return fs.createReadStream('test.file');
+  }
+
   'get /session/test' () {
     if (this.req.session.views) {
       this.req.session.views++
@@ -47,5 +56,16 @@ module.exports = class Test extends BaseController {
       this.req.session.views = 1
     }
     this.success(this.req.session, "test");
+  }
+
+  'get /test8' () {
+    this.status = 404
+    return 'hello 404';
+  }
+
+  // 修改返回content-type
+  'get /test9' () {
+    this.type = 'application/html';
+    return 'hello 404';
   }
 }
