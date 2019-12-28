@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require('path');
 const fs = require('fs');
+const Stream = require('stream');
 
 function isPromise(obj) {
   return !!obj && (typeof obj === 'object' || typeof obj === 'function') && typeof obj.then === 'function';
@@ -9,8 +10,8 @@ function isPromise(obj) {
 const router = express.Router();
 
 router.__proto__.attch = function (controller) {
-  const props = controller.getProps();
-  const methods = controller.getMethods();
+  const props = controller.__$$getProps();
+  const methods = controller.__$$getMethods();
 
   const subRouter = express.Router();
 
@@ -26,33 +27,60 @@ router.__proto__.attch = function (controller) {
 
     action = items[0].toLowerCase();
 
-    if (['get', 'post', 'delete', 
-      'put', 'update', 'options', 
-      'patch', 'head'].indexOf(action) >= 0) {
-        let path = "";
-        if (!strMethod) {
-          for (let i = 1; i < items.length; i++) {
-            path += `/${items[i].replace('_', ':')}`
-          }
-        } else {
-          path = items[1];
+    if ([
+      'get', 
+      'post', 
+      'delete', 
+      'put', 
+      'update', 
+      'options', 
+      'patch', 
+      'head'
+    ].indexOf(action) >= 0) {
+      let path = "";
+      if (!strMethod) {
+        for (let i = 1; i < items.length; i++) {
+          path += `/${items[i].replace('_', ':')}`
         }
-        
-        subRouter[action](path, async function (req, res, next) { 
-          controller.updateContext(req, res);
-          controller.before(req, res);
-          const data = controller[method](req, res);
-          let ret = null;
-          if (isPromise(data)) {
-            ret = await data;
+      } else {
+        path = items[1];
+      }
+      
+      subRouter[action](path, async function (req, res) { 
+        const ctx = Object.create({});
+        ctx.req = req;
+        ctx.res = res;
+        ctx.query = req.query;
+        ctx.params = req.params;
+        ctx.status = 200;
+        ctx.type = null;
+
+        ctx.success = controller.success;
+        ctx.failed = controller.failed;
+
+        controller.before.call(ctx, req, res);
+        const data = controller[method].call(ctx, req, res);
+        let ret = null;
+        if (isPromise(data)) {
+          ret = await data;
+        } else {
+          ret = data;
+        }
+        controller.after.call(ctx, req, res);
+        if (!res.finished || ret) {
+          ctx.type && res.type(ctx.type);
+          res.status(ctx.status);
+          if (Buffer.isBuffer(ret)) {
+            res.end(ret);
+          } else if ('string' == typeof ret) {
+            res.end(ret);
+          } else if (ret instanceof Stream) {
+            ret.pipe(res);
           } else {
-            ret = data;
+            res.json(ret);
           }
-          controller.after(req, res);
-          if (!res.headersSent && ret) {
-            res.json(ret).end();
-          }
-        });
+        }
+      });
     }
   });
 
@@ -82,17 +110,10 @@ function parseController (controllerPath) {
   return router;
 }
 
-exports.BaseController = class BaseController {
+class BaseController {
   constructor(prefix) {
+    this.prefix = prefix;
     this.name = this.constructor.name;
-  }
-
-  updateContext(req, res) {
-    this.req = req;
-    this.res = res;
-
-    this.params = req.params;
-    this.query = req.query;
   }
 
   before(req, res) {
@@ -104,31 +125,39 @@ exports.BaseController = class BaseController {
   }
 
   success(data, msg) {
-    this.res.status(200).json({
+    if (process.env.NODE_ENV != 'production') {
+      console.warn('【Warning】: method "success" will be remove after v2.0!')
+    }
+    this.res.status(this.status).json({
       code: 0,
       data: data,
       msg: msg
     }).end();
   }
 
-  failed(code, data, msg, httpStatus = 400) {
-    this.res.status(httpStatus).json({
+  failed(code, data, msg) {
+    if (process.env.NODE_ENV != 'production') {
+      console.warn('【Warning】: method "failed" will be remove after v2.0!')
+    }
+    this.res.status(this.status).json({
       code: code,
       data: data,
       msg: msg
     }).end();
   }
+}
 
-  getProps() {
-    return {
-      name: this.name
-    }
-  }
-
-  getMethods() {
-    const props = Object.getOwnPropertyNames(this.__proto__);
-    return props.filter((prop) => {
-      return prop !== "constructor" && typeof this[prop] === "function";
-    });
+BaseController.prototype.__$$getProps = function () {
+  return {
+    name: this.name
   }
 }
+
+BaseController.prototype.__$$getMethods = function () {
+  const props = Object.getOwnPropertyNames(this.__proto__);
+  return props.filter((prop) => {
+    return prop !== "constructor" && typeof this[prop] === "function";
+  });
+}
+
+exports.BaseController = BaseController;
