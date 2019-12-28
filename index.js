@@ -56,24 +56,31 @@ router.__proto__.attch = function (controller) {
     }
   });
 
-  router.use(`/${props.name.toLowerCase()}`, subRouter);
+  this.use(`/${props.name.toLowerCase()}`, subRouter);
 }
 
 exports.router = function (opts = {}) {
   const controllerPath = opts.path || path.resolve(process.cwd(), 'controller');
 
-  const files = fs.readdirSync(controllerPath);
+  const router = parseController(controllerPath);
 
+  return router;
+};
+
+function parseController (controllerPath) {
+  const files = fs.readdirSync(controllerPath);
+  const router = express.Router();
   files.forEach((file) => {
     const stat = fs.lstatSync(`${controllerPath}/${file}`);
     if (stat.isFile()) {
       const Controller = require(`${controllerPath}/${file}`);
       router.attch(new Controller());
+    } else if (stat.isDirectory()) {
+      router.use(`/${file}` ,parseController(path.resolve(controllerPath, file)));
     }
   });
-
   return router;
-};
+}
 
 exports.BaseController = class BaseController {
   constructor(prefix) {

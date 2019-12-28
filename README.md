@@ -18,6 +18,15 @@ The router plugin for expressjs about auto configure the routing function. 自�
   }
 ```
 
+Support directory path for router uri.
+```js
+  // for example we have a controller class named Api1 and has a method named test
+  |-- controller
+     |-- module
+        |-- Api.js  // url is http://host:port/module/api/test
+     |-- Api.js // url is http://host:port/api/test
+```
+
 ## Controller
 
 Each controller means a routing function, just like below：
